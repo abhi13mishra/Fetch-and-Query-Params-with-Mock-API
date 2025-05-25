@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Product Search Page</title>
+</head>
+<body>
+
+  <h2>Search Products</h2>
+
+  <!-- Filters -->
+  <label>Category:</label>
+  <select id="category">
+    <option value="">-- Select --</option>
+    <option value="electronics">Electronics</option>
+    <option value="clothing">Clothing</option>
+    <option value="books">Books</option>
+  </select>
+
+  <label>Min Price:</label>
+  <input type="number" id="minPrice" placeholder="1000">
+
+  <label>Max Price:</label>
+  <input type="number" id="maxPrice" placeholder="5000">
+
+  <button onclick="searchProducts()">Search</button>
+
+  <p id="loading" style="display:none;">Loading...</p>
+  <p id="error" style="color: red;"></p>
+
+  <div id="products"></div>
+
+  <script>
+    function searchProducts() {
+      // Input values
+      let category = document.getElementById("category").value;
+      let min = document.getElementById("minPrice").value;
+      let max = document.getElementById("maxPrice").value;
+
+      let loading = document.getElementById("loading");
+      let error = document.getElementById("error");
+      let products = document.getElementById("products");
+
+      loading.style.display = "block";
+      error.textContent = "";
+      products.innerHTML = "";
+
+      // Build URL
+      let url = "https://mockapi.io/products?";
+      if (category) url += `category=${category}&`;
+      if (min) url += `min_price=${min}&`;
+      if (max) url += `max_price=${max}&`;
+      url += "sort=asc";
+
+      // Fetch data
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          loading.style.display = "none";
+
+          if (data.length === 0) {
+            error.textContent = "No products found!";
+            return;
+          }
+
+          data.forEach(item => {
+            let box = document.createElement("div");
+            box.innerHTML = `
+              <hr>
+              <h3>${item.name}</h3>
+              <img src="${item.image}" width="100"><br>
+              <p>Price: ₹${item.price}</p>
+            `;
+            products.appendChild(box);
+          });
+        })
+        .catch(err => {
+          loading.style.display = "none";
+          error.textContent = "Error fetching data!";
+        });
+    }
+  </script>
+
+</body>
+</html>
